@@ -48,31 +48,39 @@
 
     // 新增句子功能
     function addSentences() {
-      const newSentence = prompt("請輸入一個句子：");
-      if (newSentence) {
-        const index = sentences.length;
-        sentences.push(newSentence);
-        const div = document.createElement('div');
-        div.className = 'sentence';
-        div.innerHTML = `${newSentence} 
-          <button onclick="label(${index}, 1)">正面</button> 
-          <button onclick="label(${index}, 0)">負面</button>`;
-        labelSection.appendChild(div);
-      }
+      const newSentence = prompt("請輸入一個句子：").trim();
+      if (!newSentence) return alert("句子不得為空！");
+      if (sentences.includes(newSentence)) return alert("句子已存在！");
+
+      const index = sentences.length;
+      sentences.push(newSentence);
+      const div = document.createElement('div');
+      div.className = 'sentence';
+      div.innerHTML = `${newSentence} 
+        <button onclick="label(${index}, 1)">正面</button> 
+        <button onclick="label(${index}, 0)">負面</button>`;
+      labelSection.appendChild(div);
     }
 
     // 標註情緒，並重新訓練
-    function label(index, sentiment) {
+   function label(index, sentiment) {
+      const div = labelSection.children[index];
+    
+      // Prevent multiple labels
+      if (div.classList.contains('labeled')) return;
+    
       const text = sentences[index];
       labeledData[index] = { text, label: sentiment };
-
+    
       buildVocab();
       trainModel();
-
-      const div = labelSection.children[index];
+    
       div.style.opacity = 0.5;
       div.innerHTML += ` ✅`;
-    }
+    
+      // Mark as labeled to prevent re-labeling
+      div.classList.add('labeled');
+  }
 
     // 模型訓練
     async function trainModel() {
